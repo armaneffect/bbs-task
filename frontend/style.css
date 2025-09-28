@@ -22,7 +22,8 @@
       border-radius: 8px;
       font-weight: 600;
       transition: background-color 0.3s, transform 0.2s;
-      margin: 0 auto;
+      margin: auto;
+
   }
 
   h2 {

@@ -70,7 +70,7 @@ async function submitAll() {
 
             if (data.status === 'success') {
                 Toastify({
-                    text: data.message || "Tasks submitted successfully!",
+                    text: data.message || " Tasks added successfully!",
                     duration: 3000,
                     gravity: "top",
                     position: "center",
@@ -95,8 +95,6 @@ async function submitAll() {
                     close: true,
                 }).showToast();
             }
-
-
 
         }).catch(error => {
 
