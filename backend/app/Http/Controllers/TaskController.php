@@ -29,6 +29,14 @@ class TaskController extends Controller
             'tasks.*.due_date' => 'nullable|date',
         ]);
 
+
+        if (empty($validated['tasks'])) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'No tasks provided'
+            ], 400);
+        }
+
         $tasks = collect($validated['tasks'])->map(function ($task) {
             return [
                 'title'       => $task['title'],
@@ -56,9 +64,14 @@ class TaskController extends Controller
     {
         $task = Task::find($id);
         if (!$task) {
-            return response()->json(['status' => 'error', 'message' => 'Task not found'], 404);
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'message' => 'Task not found'
+                ],
+                404
+            );
         }
         return response()->json(['status' => 'success', 'data' => $task]);
     }
-
 }
