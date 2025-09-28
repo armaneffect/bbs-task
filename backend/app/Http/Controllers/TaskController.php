@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 
@@ -19,9 +19,12 @@ class TaskController extends Controller
         ]);
     }
 
+
+
     public function store(Request $request)
     {
-        $validated = $request->validate(
+        $validator = Validator::make(
+            $request->all(),
             [
                 'tasks' => 'required|array|min:1',
                 'tasks.*.title' => 'required|string|max:255',
@@ -38,38 +41,38 @@ class TaskController extends Controller
             ]
         );
 
-        if (empty($validated['tasks'])) {
+        if ($validator->fails()) {
             return response()->json([
-                'status'  => 'error',
-                'message' => 'No valid tasks to insert.'
+                'status' => 'error',
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors()
             ], 422);
         }
 
+        $validated = $validator->validated();
 
+        // Bulk insert
         $tasks = collect($validated['tasks'])->map(function ($task) {
             return [
-                // 'user_id'    => Auth::id(), // if user auth is implemented
-                'title'       => $task['title'],
-                'description' => $task['description'] ?? null,
+                'title'        => $task['title'],
+                'description'  => $task['description'] ?? null,
                 'is_completed' => $task['is_completed'] ?? false,
-                'priority'    => $task['priority'] ?? 'medium',
-                'due_date'    => $task['due_date'] ?? null,
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'priority'     => $task['priority'] ?? 'medium',
+                'due_date'     => $task['due_date'] ?? null,
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ];
         })->toArray();
 
-        // Bulk insert for efficiency
         Task::insert($tasks);
 
-
-
         return response()->json([
-            'status' => 'success',
-            'message' => 'Tasks created successfully ' . count($tasks) . '.',
-            'count' => count($tasks)
+            'status'  => 'success',
+            'message' => 'Tasks created successfully.',
+            'count'   => count($tasks),
         ], 201);
     }
+
 
 
     public function show($id)
